@@ -50,9 +50,8 @@ module.exports = {
         }
     },
 
-    loginUser: (req, res, next) => {
-        
-        // simple check function to validate user
+    login: (req, res, next) => {
+
         validUser = (user) => {
             const validEmail = typeof user.email == 'string' &&
                                 user.email.trim() != '';
@@ -63,35 +62,45 @@ module.exports = {
             return validEmail && validPassword;
         }
 
-        // Knex query for user
         getOneByEmail = (email) => {
             return knex('client').where('email', email).first();
         }
 
         if(validUser(req.body)) {
-            getOneByEmail(req.body.email).then(user => {
-                console.log('user', user) 
-                if(user) {
-                    bcrypt.compare(req.body.password, user.password).then((result) => {
-                        if(result) {
-                            // const isSecure = req.app.get('env') != 'development';
-                            // res.cookie('user_id', user.id, {
-                            //     httpOnly: true,
-                            //     secure: isSecure,
-                            //     signed: true
-                            // })
-                            res.json({
-                                message: 'Loggin In '
+            // check to see if in DB
+            getOneByEmail(req.body.email)
+            .then(client => {
+                console.log('client', client)
+                if(client) {
+                    // compare password with hashed password
+                    bcrypt.compare(req.body.password, client.password)
+                    .then((result) => {
+                        // if the passwords matched
+                        if (result) {
+                            // setting the 'set-cookie' header
+                            res.cookie('client_id', client.id, {
+                                httpOnly: true,
+                                // may need to add functionality to later
+                                secure: true,
+                                signed: true
                             })
+                            res.json({
+                                result,
+                                message: 'Logged in! 👨‍💻'
+                            })
+                        } else {
+                            next(new Error('Invalid Login!'))
                         }
                     })
                 } else {
-                    next(new Error('Invalid Login'))
+                    next(new Error('Invalid Login!'))
                 }
-            });
+            })
         } else {
             next(new Error('Invalid Login'))
         }
     }
+
+    
 
 }
