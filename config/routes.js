@@ -1,16 +1,20 @@
 //Update the name of the controller below and rename the file.
 const client_controller = require("../controllers/client_controller.js");
 const exercise_controller = require("../controllers/exercise_controller.js");
+const base_route = require("../controllers/base_route.js");
 const auth = require("../controllers/auth.js");
 const jwt = require("jsonwebtoken");
 
-module.exports = function(app){
+module.exports = function (app) {
 
   // CLIENT ROUTES
   app.get('/client', client_controller.getUsers);
 
   // Now a CREATE CLIENT ROUTE
   app.post('/newClient', auth.createUser);
+
+  // default route
+  app.get('/', base_route.helloWorld);
 
   // Now a LOGIN CLIENT ROUTE
   app.post('/login', auth.login);

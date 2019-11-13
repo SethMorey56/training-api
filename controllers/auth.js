@@ -94,7 +94,7 @@ module.exports = {
                     })
                 } else {
                     next(new Error('Invalid Login!'))
-                }
+                } 
             })
         } else {
             next(new Error('Invalid Login'))
